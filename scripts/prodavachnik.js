@@ -15,7 +15,7 @@ function startApp() {
     $('#linkCreateAd').on('click', showCreate)
     $('#buttonCreateAd').on('click', createAdd)
     $('#buttonEditAd').on('click', editAdd)
-    
+
 
 
 
@@ -34,6 +34,7 @@ function startApp() {
             hideView('viewAds')
             hideView('viewCreateAd')
             hideView('viewEditAd')
+            hideView('viewDetailsAd')
             $('#formRegister').trigger('reset')
             $('#formLogin').trigger('reset')
             $('#loggedInUser').text('')
@@ -44,6 +45,7 @@ function startApp() {
             hideView('viewAds')
             hideView('viewCreateAd')
             hideView('viewEditAd')
+            hideView('viewDetailsAd')
             showView('linkListAds')
             showView('linkCreateAd')
             showView('linkLogout')
@@ -161,6 +163,7 @@ function startApp() {
         hideView('viewHome')
         showView('viewAds')
         hideView('viewEditAd')
+        hideView('viewDetailsAd')
 
         $('#ads table tr').each((index, element) => {
             if (index > 0) {
@@ -196,7 +199,11 @@ function startApp() {
                         .append($('<td>').text(add.description))
                         .append($('<td>').text(add.price))
                         .append($('<td>').text(add.date))
-                        .append($('<td>')))
+                        .append($('<td>')
+                            .append($('<center><a href="#">[Read More]</a></center>').on('click', function () {
+                                viewDetailsAd(add)
+                            }))
+                        ))
 
                     if (add._acl.creator === sessionStorage.getItem('id')) {
                         $(tr).find('td').last()
@@ -208,10 +215,8 @@ function startApp() {
                                 showView('viewEditAd')
                                 hideView('viewAds')
                                 loadAddForEdit(add)
-                            })
-                            )
+                            }))
                     }
-
                 }
             } else {
                 $('.titleForm').remove()
@@ -229,6 +234,7 @@ function startApp() {
         hideView('viewHome')
         hideView('viewAds')
         hideView('viewEditAd')
+        hideView('viewDetailsAd')
     }
 
     function createAdd() {
@@ -237,12 +243,13 @@ function startApp() {
         let date = $('#formCreateAd input[name="datePublished"]').val()
         let price = $('#formCreateAd input[name="price"]').val()
         let author = sessionStorage.getItem('username')
+        let image = $('#formCreateAd input[name="image"]').val()
 
         $.ajax({
             method: 'POST',
             url: BASE_URL + 'appdata/' + APP_KEY + '/ads',
             headers: { 'Authorization': 'Kinvey ' + sessionStorage.getItem('authToken') },
-            data: { title, description, date, price, author }
+            data: { title, description, date, price, author, image }
         }).then(function (res) {
             listAds()
             $('#formCreateAd').trigger('reset')
@@ -267,6 +274,7 @@ function startApp() {
         let price = $('#formEditAd input[name="price"]').val(add.price)
         let id = $('#formEditAd input[name="id"]').val(add._id)
         let author = $('#formEditAd input[name="publisher"]').val(add.author)
+        let image = $('#formEditAd input[name="image"]').val(add.image)
     }
     function editAdd() {
         let title = $('#formEditAd input[name="title"]').val()
@@ -275,15 +283,32 @@ function startApp() {
         let price = $('#formEditAd input[name="price"]').val()
         let id = $('#formEditAd input[name="id"]').val()
         let author = $('#formEditAd input[name="publisher"]').val()
-        
+        let image = $('#formEditAd input[name="image"]').val()
+
         $.ajax({
             method: 'PUT',
             url: BASE_URL + 'appdata/' + APP_KEY + '/ads/' + id,
             headers: { 'Authorization': 'Kinvey ' + sessionStorage.getItem('authToken') },
-            data: {title, description, date, price, id, author}
+            data: { title, description, date, price, id, author, image }
         }).then(function (res) {
             listAds()
             showInfo('Add edited.')
         }).catch(handleAjaxError)
+    }
+    function viewDetailsAd(add) {
+        showView('viewDetailsAd')
+        hideView('viewAds')
+        $('#viewDetailsAd label[for="title"]').find('h3').empty()
+        $('#viewDetailsAd label[for="description"]').find('p').empty()
+        $('#viewDetailsAd label[for="publisher"]').find('p').empty()
+        $('#viewDetailsAd label[for="date"]').find('p').empty()
+        $('#viewDetailsAd div').find('img').remove()
+
+        $('#viewDetailsAd div').prepend($(`<img src="${add.image}">`))
+        $('#viewDetailsAd label[for="title"]').append($('<h3>').text(add.title))
+        $('#viewDetailsAd label[for="description"]').append($('<p>').text(add.description))
+        $('#viewDetailsAd label[for="publisher"]').append($('<p>').text(add.author))
+        $('#viewDetailsAd label[for="date"]').append($('<p>').text(add.date))
+        
     }
 }
