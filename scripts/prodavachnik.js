@@ -304,7 +304,12 @@ function startApp() {
         $('#viewDetailsAd label[for="date"]').find('p').empty()
         $('#viewDetailsAd div').find('img').remove()
 
-        $('#viewDetailsAd div').prepend($(`<img src="${add.image}">`))
+        if (add.image == undefined || add.image == '') {
+            $('#viewDetailsAd div').prepend($(`<img src="https://cdn.shopify.com/s/files/1/0095/4332/t/30/assets/no-image.svg">`))
+        }else {
+            $('#viewDetailsAd div').prepend($(`<img src="${add.image}">`))
+        }
+        
         $('#viewDetailsAd label[for="title"]').append($('<h3>').text(add.title))
         $('#viewDetailsAd label[for="description"]').append($('<p>').text(add.description))
         $('#viewDetailsAd label[for="publisher"]').append($('<p>').text(add.author))
